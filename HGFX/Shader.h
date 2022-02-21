@@ -25,7 +25,7 @@ public:
     void setInt(const std::string& name, int value) const;
     void setFloat(const std::string& name, float value) const;
     void setVec(const std::string& name, float x , float y, float z , float h) const;
-    void setMat(const std::string& name, glm::mat4 x) const;
+    void setMat4(const std::string& name, glm::mat4 x) const;
 };
 
 
@@ -133,7 +133,7 @@ inline void Shader::setVec(const std::string& name, float x, float y, float z, f
     glUniform4f(glGetUniformLocation(ID, name.c_str()), x, y, z, h);
 }
 
-inline void Shader::setMat(const std::string& name, glm::mat4 x) const
+inline void Shader::setMat4(const std::string& name, glm::mat4 x) const
 {
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()),1, GL_FALSE, glm::value_ptr(x));
 } 
