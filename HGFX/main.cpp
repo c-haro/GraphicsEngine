@@ -24,7 +24,7 @@ float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
 
-unsigned int VAO[2], VBO[2], EBO;
+unsigned int VAO[3], VBO[4], EBO;
 
 void ProcessEvent(SDL_Event e);
 //The window we'll be rendering to
@@ -246,6 +246,8 @@ int main(int argc, char* args[])
 
 				Shader textShader("TextV.glsl", "TextF.glsl");
 
+				Shader wepShader("TextV.glsl", "frag1.glsl");
+
 				float vertices[] = {
 					-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
@@ -308,8 +310,8 @@ int main(int argc, char* args[])
 				//};
 
 				glGenBuffers(1, &EBO);
-				glGenBuffers(2, VBO);
-				glGenVertexArrays(2, VAO);
+				glGenBuffers(3, VBO);
+				glGenVertexArrays(3, VAO);
 
 				// 1. bind Vertex Array Object
 				glBindVertexArray(VAO[0]);
@@ -402,6 +404,67 @@ int main(int argc, char* args[])
 					std::cout << "Failed to load texture" << std::endl;
 				}
 				glGenerateMipmap(GL_TEXTURE_2D);
+
+				//Weapons LOL
+				GLuint  weapons[2];
+				glGenTextures(2, weapons);
+				glBindTexture(GL_TEXTURE_2D, weapons[0]);
+				//texture wraping params
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_MIRRORED_REPEAT);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_MIRRORED_REPEAT);
+				//texture filtering params
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+				glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+				data = stbi_load("images/weps.png", &width, &height, &nrChannels, 0);
+				if (data)
+				{
+ 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+					glGenerateMipmap(GL_TEXTURE_2D);
+				}
+				else
+				{
+					std::cout << "Failed to load texture" << std::endl;
+				}
+				glGenerateMipmap(GL_TEXTURE_2D);
+
+				glBindTexture(GL_TEXTURE_2D, weapons[1]);
+
+				auto* ptr = data + (58 * width) * 4;
+				glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 58, width, height, GL_RGB, GL_UNSIGNED_BYTE, ptr);
+				glGenerateMipmap(GL_TEXTURE_2D);
+				//Vertex Stuff
+
+
+				// 1. bind Vertex Array Object
+				float shotgun[] = { 58.0f,54.0f,1.0f, 1.0f };
+				
+
+				glBindVertexArray(VAO[2]);
+
+				glBindBuffer(GL_ARRAY_BUFFER, VBO[2]);
+				glBufferData(GL_ARRAY_BUFFER, sizeof(shotgun), shotgun, GL_STATIC_DRAW);
+
+				/*glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);*/
+				// 1. then set the vertex attributes pointers
+				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 4 * sizeof(float), (void*)0);
+				glEnableVertexAttribArray(0);
+				//color
+				/*glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+				glEnableVertexAttribArray(1);*/
+				//texture
+
+
+				wepShader.use();
+
+				wepShader.setInt("texture1", weapons[1]);
+
+				
+
+
+
+				
 
 
 
@@ -531,12 +594,43 @@ int main(int argc, char* args[])
 					}
 
 
+					
+
+
 					//std::cout << "time:" << deltaTime << std::endl;
 					glm::mat4 model = glm::mat4(1.0f);
 					model = glm::scale(model, glm::vec3(5, .01, 5));
 					model = glm::translate(model, glm::vec3(0, -10, 0));
 					ourShader.setMat4("model", model);
 					glDrawArrays(GL_TRIANGLES, 0, 36);
+
+
+
+					//wepShader.use();
+
+					//projection = glm::ortho(0.0f, (float)SCREEN_WIDTH, 0.0f, (float)SCREEN_HEIGHT);
+					////model = glm::scale(model, glm::vec3(sScale[0], sScale[1], sScale[2]));
+					////model = glm::translate(model, glm::vec3(0, -10, 0));
+
+					//glActiveTexture(GL_TEXTURE0);
+					//glBindVertexArray(VAO[1]);
+
+					//wepShader.setMat4("projection", projection);
+					//float verticesx[] = {
+ 				//	0.0f,0.0f,   0.0f,  
+					//	58.0f ,     0.0f,       0.0f, 
+					//	 58.0f, 54.0f,       0.0f,  
+					//	 0.0f,     54.0f,   0.0f
+					//};
+					//// render glyph texture over quad
+					//glBindTexture(GL_TEXTURE_2D, weapons[1]);
+					//// update content of VBO memory
+					//glBindBuffer(GL_ARRAY_BUFFER, VBO[1]);
+					//glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(verticesx), verticesx);
+					//glBindBuffer(GL_ARRAY_BUFFER, 0);
+					//// render quad
+					//glDrawArrays(GL_TRIANGLES, 0, 4);
+				
 
 
 

@@ -150,6 +150,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="frag.glsl" />
+    <None Include="frag1.glsl" />
     <None Include="packages.config" />
     <None Include="TextF.glsl" />
     <None Include="TextV.glsl" />
